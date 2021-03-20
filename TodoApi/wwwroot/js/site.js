@@ -3,10 +3,25 @@ let todos = [];
 
 //se envia una solicitu get http a api/TodoItems.
 function getItems() {
-  fetch(uri)
+ /* fetch(uri)
     .then(response => response.json())
     .then(data => _displayItems(data))
-    .catch(error => console.error('Unable to get items.', error));
+    .catch(error => console.error('Unable to get items.', error));*/
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      try{
+        const aux=JSON.parse(this.responseText);
+        _displayItems(aux);
+       // console.log(this.responseText);
+      }catch(e){
+      }
+    }
+    };
+    xhttp.open("GET", uri, true);
+    xhttp.send();
+     
 }
 
 //Se envia una solititud POST para agregar un elemento nuevo.
@@ -17,29 +32,36 @@ function addItem() {
     isComplete: false,
     name: addNameTextbox.value.trim()
   };
-
-  fetch(uri, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(item)
-  })
-    .then(response => response.json())
-    .then(() => {
+  const objEnviar=JSON.stringify(item);
+  console.log(objEnviar);
+  const xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 201) {
       getItems();
-      addNameTextbox.value = '';
-    })
-    .catch(error => console.error('Unable to add item.', error));
+    
+    }
+    };
+  xhttp.open("POST",uri);
+  xhttp.setRequestHeader("Content-Type","application/json");
+  xhttp.send(objEnviar);
+
 }
 // se envia una solicitud DELETE para eliminar un elemento que coincida con el id enviado por la url.
 function deleteItem(id) {
-  fetch(`${uri}/${id}`, {
+ /* fetch(`${uri}/${id}`, {
     method: 'DELETE'
   })
   .then(() => getItems())
-  .catch(error => console.error('Unable to delete item.', error));
+  .catch(error => console.error('Unable to delete item.', error));*/
+  const xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 204) {
+      getItems();
+    }
+    };
+  xhttp.open("DELETE",uri+"/"+id);
+  xhttp.send();
+
 }
 
 function displayEditForm(id) {
@@ -58,8 +80,7 @@ function updateItem() {
     isComplete: document.getElementById('edit-isComplete').checked,
     name: document.getElementById('edit-name').value.trim()
   };
-
-  fetch(`${uri}/${itemId}`, {
+  /*fetch(`${uri}/${itemId}`, {
     method: 'PUT',
     headers: {
       'Accept': 'application/json',
@@ -68,7 +89,19 @@ function updateItem() {
     body: JSON.stringify(item)
   })
   .then(() => getItems())
-  .catch(error => console.error('Unable to update item.', error));
+  .catch(error => console.error('Unable to update item.', error));*/
+  const objEnviar=JSON.stringify(item);
+  console.log(objEnviar);
+  const xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 204) {
+      getItems();
+    }
+    };
+  xhttp.open("PUT",uri+"/"+itemId);
+  xhttp.setRequestHeader("Content-Type","application/json");
+  xhttp.send(objEnviar);
+
 
   closeInput();
 
